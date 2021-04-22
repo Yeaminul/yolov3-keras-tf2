@@ -8,10 +8,8 @@
   <a href="https://github.com/emadboctorx/yolov3-keras-tf2/">
   </a>
 
-  <h3 align="center">YoloV3 Real Time Object Detector in tensorflow 2.2</h3>
+  <h3 align="center">Yolo (all versions) Real Time Object Detector in tensorflow 2.4</h3>
     .
-    <a href="https://github.com/emadboctorx/yolov3-keras-tf2/tree/master/Docs"><strong>Explore the docs »</strong></a>
-    ·
     <a href="https://github.com/emadboctorx/yolov3-keras-tf2/issues">Report Bug</a>
     ·
     <a href="https://github.com/emadboctorx/yolov3-keras-tf2/issues">Request Feature</a>
@@ -21,11 +19,11 @@
 ## **TODO**
 
 * [ ] Transfer learning
-* [x] YoloV4 configuration(Inference only)
+* [x] YoloV4 configuration
 * [x] YoloV4 training
 * [ ] YoloV4 loss function adjustments.
 * [ ] Live plot losses
-* [ ] Command line handler
+* [x] Command line options
 * [x] YoloV3 tiny
 * [ ] Rasberry Pi support
 
@@ -34,7 +32,6 @@
 ## **Table of Contents**
 
 * [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 
 * [Description](#description)
@@ -42,91 +39,130 @@
 * [Updates](#updates)
 
 * [Features](#features)
-  * [(new) DarkNet models loaded directly from .cfg files](#new-darknet-models-loaded-directly-from-cfg-files)
-  * [(new) YoloV4 support](#new-yolov4-supportinference-only)
-  * [tensorflow-2.X--keras-functional-api](#tensorflow-22--keras-functional-api)
+  * [(new) Command line options](#new-command-line-options)
+    * [General](#general-options)
+    * [Training](#training-options)
+    * [Evaluation](#evaluation-options)
+    * [Detection](#detection-options)
+  * [DarkNet models loaded directly from .cfg files](#darknet-models-loaded-directly-from-cfg-files)
+  * [YoloV4 support](#yolov4-support)
+  * [tensorflow-2.4--keras-functional-api](#tensorflow-24--keras-functional-api)
   * [cpu-gpu support](#cpu--gpu-support)
   * [Random weights and DarkNet weights support](#random-weights-and-darknet-weights-support)
   * [csv-xml annotation parsers.](#csv-xml-annotation-parsers)
-  * [Anchor generator.](#anchor-generator)
-  * [`matplotlib` visualization of all stages.](#matplotlib-visualization-of-all-stages)
-  * [`tf.data` input pipeline.](#tfdata-input-pipeline)
-  * [`pandas` & `numpy` data handling.](#pandas--numpy-data-handling)
-  * [`imgaug` augmentation pipeline(customizable).](#imgaug-augmentation-pipelinecustomizable)
-  * [`logging` coverage.](#logging)
+  * [Anchor generator.](#anchor-generation)
+  * [matplotlib visualization of all stages.](#matplotlib-visualization-of-all-stages)
+  * [tf.data input pipeline.](#tfdata-input-pipeline)
+  * [imgaug augmentation pipeline(customizable).](#imgaug-augmentation-pipelinecustomizable)
+  * [Logging](#logging)
   * [All-in-1 custom trainer.](#all-in-1-custom-trainer-class)
-  * [Stop and resume training support.](#stop-and-resume-training-support)
+  * [Stop and resume training support.](#stop-and-resume-training)
   * [Fully vectorized mAP evaluation.](#fully-vectorized-map-evaluation)
-  * [`labelpix` support.](#labelpix-support)
+  * [labelpix support.](#labelpix-support)
   * [Photo & video detection](#photo--video-detection)
 
 * [Usage](#usage)
   * [Training](#training)
+    * [Terminal command](#training-command-line-equivalent)
   * [Augmentation](#augmentation)
   * [Evaluation](#evaluation)
+    * [Terminal command](#evaluation-command-line-equivalent)
   * [Detection](#detection)
+    * [Terminal command (photos)](#detection-photo-command-line-equivalent)
+    * [Terminal command (video)](#detection-video-command-line-equivalent)
+
 * [Contributing](#contributing)
+* [Issues](#issue-policy)
+  * [What will be addressed](#relevant-issues)
+  * [What will not be adressed](#irrelevant-issues)
+    
 * [License](#license)
 * [Show your support](#show-your-support)
 * [Contact](#contact)
 
-![GitHub Logo](/Samples/detections.png)
+![GitHub Logo](/samples/detections.png)
 
 <!-- GETTING STARTED -->
 ## **Getting started**
 
-### **Prerequisites**
-
-Here are the **packages** you'll need to install before starting to use the detector:
-* pandas==1.0.3
-* lxml==4.5.0
-* opencv_python_headless==4.2.0.34
-* imagesize==1.2.0
-* seaborn==0.10.0
-* tensorflow==2.2.0
-* tensorflow-gpu==2.2.0
-* numpy==1.18.2
-* matplotlib==3.2.1
-* imgaug==0.4.0
-* tensorflow-addons==0.10.0
-* imagecorruptions==1.1.0 
-
 ### **Installation**
 
 1. **Clone the repo**
+
 ```sh
-git clone https://github.com/emadboctorx/yolov3-keras-tf2/
+git clone https://github.com/emadboctorx/yolo-tf2
 ```
-2. **Install requirements**
+
+2. **Install**
+
+**Note:** If you have a cuda-compatible GPU, uncomment `tensorflow-gpu` in `requirements.txt`
+
 ```sh
-pip install -r requirements.txt
+cd yolo-tf2
+pip install .
 ```
-**or**
+3. **Verify installation**
+
 ```sh
-conda install --file requirements.txt
+yolotf2
 ```
+
+**OUT:**
+
+    Yolo-tf2 1.5
+    
+    Usage:
+        yolotf2 <command> [options] [args]
+    
+    Available commands:
+        train      Create new or use existing dataset and train a model
+        evaluate   Evaluate a trained model
+        detect     Detect a folder of images or a video
 
 <!-- DESCRIPTION -->
 ## **Description**
 
-yolov3-keras-tf2 is initially an implementation of [yolov3](https://pjreddie.com/darknet/yolo/) 
-(you only look once)(training & inference) and YoloV4 support was added(02/06/2020) 
-which is is a state-of-the-art, real-time object detection system that is extremely 
-fast and accurate.There are many implementations that support tensorflow, only a few that 
+yolo-tf2 was initially an implementation of [yolov3](https://pjreddie.com/darknet/yolo/) 
+(you only look once)(training & inference) and support for all yolo versions was added in V1.1
+
+Yolo's original repo is [here](https://github.com/AlexeyAB/darknet) (written in C/C++/Cu).
+Yolo is a state-of-the-art, real-time object detection system that is extremely 
+fast and accurate. There are many implementations that support tensorflow, only a few that 
 support tensorflow v2 and as I did not find versions that suit my needs so, 
 I decided to create this version which is very flexible and customizable. 
-It requires the Python interpreter version 3.6, 3.7, 3.7+, 
-is not platform specific and is MIT licensed which means you can use, copy, modify, distribute 
-this software however you like.
+It requires python 3.8+, is not platform specific and is MIT licensed.
 
 <!-- Updates -->
 
 ## **Updates**
 
-### 02/06/2020
-- YoloV4 training is currently supported.
+### [1.5] - 2021-01-21
+- Fix bug that creates out of image bounding boxes after augmentation.
+- Fix bug with display commands
+- Update dependencies to most recent versions.
 
-### 29/05/2020
+### [1.4] - 2020-11-30
+- Fix a bug that draws extra irrelevant boxes over photos for V4 configuration
+- Fix a bug that causes shape incompatibility issues
+- Remove extra required parameters `image_width`, `image_height` which are currently 
+measured during runtime.
+- Fix a bug that prevents output from saving due to path mishandling
+- Unify all IO operations to go through `yolo_tf2.utils.common.get_abs_path()`
+- All commands are currently supported from any working directory, so users shouldn't worry
+about creating folders and matching names, which is handled automatically.
+- Upgrade all dependencies to latest versions 
+
+### [1.3] - 2020-10-20
+- Add command line full support for training, evaluation and detection
+
+### [1.2] - 2020-10-18
+- Add setup.py, direct installation through python3 setup.py install
+- Restructure package folders
+
+### [1.1] - 2020-06-02
+- Add yolov4 support
+
+### [1.0] - 2020-05-29
 
 - Models are loaded directly from DarkNet .cfg files
 - YoloV4 is currently supported(inference only, no training)
@@ -136,22 +172,80 @@ this software however you like.
 
 ## **Features**
 
-## **(new) DarkNet models loaded directly from .cfg files**
-This feature was introduced to replace the old hard-coded model,
-models are currently loaded directly from DarkNet .cfg files for convenience
-including YoloV4 .cfg
+## **(new) Command line options**
 
-## **(new) YoloV4 support**
-As models currently load from .cfg files directly, YoloV4 is supported
-the configuration file needs to be supplied and the model is loaded, as
-there are technical issues encountered with the loss function, only inference
-using DarkNet weights for YoloV4 is currently supported.
-the configuration file needs to be supplied and the model is loaded and 
-ready for usage.
+### **General options**
 
-### **tensorflow 2.2 & keras functional api**
+| flags                | help                                                              | required   | default       |
+|:---------------------|:------------------------------------------------------------------|:-----------|:--------------|
+| --input-shape        | Input shape ex: (416, 416, 3)                                     | -          | (416, 416, 3) |
+| --classes            | Path to classes .txt file                                         | True       | -             |
+| --model-cfg          | Yolo DarkNet configuration .cfg file                              | True       | -             |
+| --max-boxes          | Maximum boxes per image                                           | -          | 100           |
+| --iou-threshold      | IOU(intersection over union threshold)                            | -          | 0.5           |
+| --score-threshold    | Confidence score threshold                                        | -          | 0.5           |
+| --workers            | Concurrent tasks(in areas where that is possible)                 | -          | 16            |
+| --process-batch-size | Batch size of operations that needs batching (excluding training) | -          | 32            |
 
-This program leverages features that were introduced in tensorflow 2.0 
+### **Training options**
+
+| flags                 | help                                                         | required   | default   |
+|:----------------------|:-------------------------------------------------------------|:-----------|:----------|
+| --weights             | Path to trained weights .tf or .weights file                 | -          | -         |
+| --epochs              | Number of training epochs                                    | -          | 100       |
+| --batch-size          | Training batch size                                          | -          | 8         |
+| --learning-rate       | Training learning rate                                       | -          | 0.001     |
+| --dataset-name        | Name of the checkpoint                                       | True       | -         |
+| --test-size           | test dataset relative size (a value between 0 and 1)         | -          | 0.1       |
+| --evaluate            | If True, evaluation will be conducted after training         | -          | -         |
+| --merge-evaluation    | If False, evaluate training and validation separately        | -          | -         |
+| --shuffle-buffer      | Dataset shuffle buffer                                       | -          | 512       |
+| --min-overlaps        | a float value between 0 and 1                                | -          | 0.5       |
+| --display-stats       | If True, display evaluation statistics                       | -          | -         |
+| --plot-stats          | If True, plot results                                        | -          | -         |
+| --save-figs           | If True, save plots                                          | -          | -         |
+| --clear-output        | If True, clear output folders                                | -          | -         |
+| --n-eval              | Evaluate every n epochs                                      | -          | -         |
+| --relative-labels     | Path to .csv file that contains                              | -          | -         |
+| --voc-conf            | VOC configuration .json file                                 | -          | -         |
+| --augmentation-preset | name of augmentation preset                                  | -          | -         |
+| --image-folder        | Path to folder that contains images, defaults to data/photos | -          | -         |
+| --xml-labels-folder   | Path to folder that contains XML labels                      | -          | -         |
+| --train-tfrecord      | Path to training .tfrecord file                              | -          | -         |
+| --valid-tfrecord      | Path to validation .tfrecord file                            | -          | -         |
+
+### **Evaluation options**
+
+| flags            | help                              | required   |
+|:-----------------|:----------------------------------|:-----------|
+| --predicted-data | csv file with predictions         | True       |
+| --actual-data    | csv file with actual data         | True       |
+| --train-tfrecord | Path to training .tfrecord file   | True       |
+| --valid-tfrecord | Path to validation .tfrecord file | True       |
+
+### **Detection options**
+
+| flags         | help                                                     | required   | default   |
+|:--------------|:---------------------------------------------------------|:-----------|:----------|
+| --image       | Path to an image to predict and draw bounding boxes over | -          | -         |
+| --image-dir   | A directory that contains images to predict              | -          | -         |
+| --video       | A video to predict                                       | -          | -         |
+| --codec       | Codec to use for predicting videos                       | -          | mp4v      |
+| --display-vid | Display video during prediction                          | -          | -         |
+| --weights     | Path to trained weights .tf or .weights file             | True       | -         |
+| --output-dir  | Path to directory for saving results                     | -          | -         |
+
+## **DarkNet models loaded directly from .cfg files**
+This feature was introduced to replace the old hard-coded model.
+Models are loaded directly from DarkNet .cfg files for convenience.
+
+## **YoloV4 support**
+As models currently load from .cfg files directly, all yolo versions including v4 are supported
+the configuration file needs to be passed as argument, and the model is loaded.
+
+### **tensorflow 2.4 & keras functional api**
+
+This program leverages features that were introduced in tensorflow 2.x 
 including: 
 
 * **Eager execution:** an imperative programming environment that evaluates operations immediately,
@@ -168,7 +262,7 @@ if no GPUs available, the CPU will be used(slow).
 
 Both options are available, and NOTE in case of using DarkNet [yolov3 weights](https://pjreddie.com/media/files/yolov3.weights)
 you must maintain the same number of [COCO classes](https://gist.github.com/AruniRC/7b3dadd004da04c80198557db5da4bda) (80 classes)
-as transfer learning to models with different classes will be supported in future versions of this program.
+as transfer learning to models with different classes will be supported in future versions.
 
 ### **csv-xml annotation parsers**
 
@@ -244,7 +338,6 @@ There are 2 currently supported formats that the program is able to read and tra
 	<object>
 		<name>Street Sign</name>
 		<bndbox>
-		<bndbox>
 			<xmin>1220.99999952</xmin>
 			<ymin>91.999999854</ymin>
 			<xmax>1317.999999456</xmax>
@@ -260,7 +353,6 @@ There are 2 currently supported formats that the program is able to read and tra
 			<ymax>275.000000184</ymax>
 		</bndbox>
 	</object>
-	<object>
 		<name>Street Sign</name>
 		<bndbox>
 			<xmin>798.99999984</xmin>
@@ -273,13 +365,13 @@ There are 2 currently supported formats that the program is able to read and tra
 
 * **CSV with relative labels that looks like the following example:**
 
-Image | Object Name | Object Index | bx | by | bw | bh | #
+image | object_name | object_index | bx | by | bw | bh | #
 --- | --- | --- | --- |--- |--- |--- |--- 
 img1.png | dog | 2 | 0.438616071 | 0.51521164 | 0.079613095	| 0.123015873
 img1.png | car | 1 | 0.177827381 | 0.381613757 | 0.044642857 | 0.091269841
 img2.png | Street Sign | 5 | 0.674107143 | 0.44047619 | 0.040178571 | 0.084656085
 
-### **Anchor generator**
+### **Anchor generation**
 
 A [k-means](https://en.wikipedia.org/wiki/K-means_clustering) algorithm finds the optimal sizes and generates 
 anchors with process visualization.
@@ -290,31 +382,31 @@ anchors with process visualization.
 
 * **k-means visualization:**
 
-![GitHub Logo](/Samples/anchors.png)
+![GitHub Logo](/samples/anchors.png)
 
 * **Generated anchors:**
 
-![GitHub Logo](/Samples/anchors_sample.png)
+![GitHub Logo](/samples/anchors_sample.png)
 
 * **Precision and recall curves:**
 
-![GitHub Logo](/Samples/pr.png)
+![GitHub Logo](/samples/pr.png)
 
 * **Evaluation bar charts:**
 
-![GitHub Logo](/Samples/map.png)
+![GitHub Logo](/samples/map.png)
 
 * **Actual vs. detections:**
 
-![GitHub Logo](/Samples/true_false.png)
+![GitHub Logo](/samples/true_false.png)
 
-* **Augmentation options visualization:**
+* **Augmentation visualization:**
 
-Double screen visualization(before/after) image like the following example:
+Augmentation visualization (before/after) as shown below:
 
-![GitHub Logo](/Samples/aug1.png)
+![GitHub Logo](/samples/aug1.png)
 
-* **Dataset pre and post augmentation visualization with bounding boxes:**
+* **Dataset pre/post augmentation view with bounding boxes:**
 
 You can always visualize different stages of the program using my other repo 
 [labelpix](https://github.com/emadboctorx/labelpix) which is tool for drawing 
@@ -330,17 +422,13 @@ the program takes as input images and their respective annotations and builds tr
 TFRecords to be further used for all operations and TFRecords are also used in the evaluation(mid/post) training,
 so it's valid to say you can delete images to free space after conversion to TFRecords.
 
-### **`pandas` & `numpy` data handling**
-
-Most of the operations are using numpy and pandas for efficiency and vectorization.
-
 ### **`imgaug` augmentation pipeline(customizable)**
 
 Special thanks to the amazing [imgaug](https://github.com/aleju/imgaug) creators,
 an augmentation pipeline(optional) is available and NOTE that the augmentation is
 conducted **before** the training not during the training due to technical complications
 to integrate tensorflow and imgaug. If you have a small dataset, augmentation is an option
-and it can be preconfigured before the training check [Augmentor.md](Docs/Augmentor.md)
+and it can be preconfigured before the training.
 
 ### **`logging`**
 
@@ -351,13 +439,13 @@ Different operations are recorded using `logging` module.
 For custom training, `Trainer` class accepts configurations for augmentation, 
 new anchor generation, new dataset(TFRecord(s)) creation, mAP evaluation
 mid-training and post training. So all you have to do is place images
-in Data > Photos, provide the configuration that suits you and start the training
+in data > photos, provide the configuration that suits you and start the training
 process, all operations are managed from the same place for convenience.
-For detailed instructions check [Trainer.md](Docs/Trainer.md)
+For detailed instructions.
 
-### **Stop and resume training support**
+### **Stop and resume training**
 
-by default the trainer checkpoints to Models > checkpoint_name.tf at the end
+by default the trainer checkpoints to models > checkpoint_name.tf at the end
 of each training epoch which enables the training to be resumed at any given 
 point by loading the checkpoint which would be the most recent.
 
@@ -367,10 +455,9 @@ Evaluation is optional during the training every n epochs(not recommended for
 large datasets as it predicts every image in the dataset) and one evaluation 
 at the end which is optional as well. Training and validation datasets
 can be evaluated separately and calculate mAP(mean average precision) as well
-as precision and recall curves for every class in the model, 
-check [Evaluator.md](Docs/Evaluator.md)
+as precision and recall curves for every class in the model.
 
-![GitHub Logo](/Samples/eval.png)
+![GitHub Logo](/samples/eval.png)
 
 ### **labelpix support**
 
@@ -382,8 +469,7 @@ images if you need to preview any stage of the training/augmentation/evaluation/
 
 ### **Photo & video detection**
 
-Detections can be performed on photos or videos using Predictor class
-check [Predictor.md](/Docs/Predictor.md)
+Detections can be performed on photos or videos using Detector class.
 
 ## **Usage**
 
@@ -391,12 +477,7 @@ check [Predictor.md](/Docs/Predictor.md)
 
 **Here are the most basic steps to train using a custom dataset:**
 
-1- Copy images to Data > Photos
-
-2- If labels are in the XML VOC [format](#csv-xml-annotation-parsers),
-copy label xml files to Data > Labels
-
-3- Create classes .txt file that contains classes delimited by \n
+1- Create classes .txt file that contains classes delimited by \n
 
 
     dog
@@ -408,19 +489,21 @@ copy label xml files to Data > Labels
     laptop
 
 
-4- Create a training instance and specify `input_shape`, `classes_file`,
-`image_width` and `image_height`
-
+2- Create a training instance and specify `input_shape`, `classes_file`,
+and either specify `image_folder=/path/to/image/folder`
+or it would default to `data > photos`
+    
+    from yolo_tf2.core.trainer import Trainer
+    
 
     trainer = Trainer(
              input_shape=(416, 416, 3),
-             model_configuration='../Config/yolo3.cfg',
+             model_configuration='yolo_tf2/config/yolo3.cfg',
              classes_file='/path/to/classes_file.txt',
-             image_width=1344,  # The original image width
-             image_height=756   # The original image height
+             image_folder=/path/to/image/folder
     )
 
-5- Create dataset configuration(dict) that contains the following keys:
+3- Create dataset configuration(dict) that contains the following keys:
 
 - `dataset_name`: TFRecord prefix(required)
 
@@ -430,16 +513,18 @@ and one of the following:(required)
 
 or
 
-- `from_xml`: `True` 
+- `xml_labels_folder`: Path to folder containing xml labels (defaults to `data > xml_labels`) 
+- `voc_conf`: path to .json file containing VOC parsing configuration (you may use the one
+in `yolotf2 > config` or create a similar structure).
 
 and
 
-- `test_size`: percentage of the validation split ex: 0.1(optional)
+- `test_size`: percentage of the validation split ex: 0.1(required)
 - `augmentation`: `True` (optional)
 
 and if `augmentation` this implies the following:
 
-- `sequences`: (required) A list of augmentation sequences check [Augmentor.md](Docs/Augmentor.md) 
+- `sequences`: (required) A list of augmentation sequences. 
 - `aug_workers`: (optional) defaults to 32 parallel augmentations.
 - `aug_batch_size`: (optional) this is the augmentation batch size defaults to 64 images to load at once.
 
@@ -447,23 +532,24 @@ and if `augmentation` this implies the following:
                     'relative_labels': '/path/to/labels.csv',
                     'dataset_name': 'dataset_name',
                     'test_size': 0.2,
-                    'sequences': preset_1,  # check Config > augmentation_options.py
+                    'sequences': PRESET1,  # check Config > augmentation_options.py
                     'augmentation': True,
       }
 
-6- Create new anchor generation configuration(dict) that contains the following keys:
+4- Create new anchor generation configuration(dict) that contains the following keys(optional):
 
 - `anchor_no`: number of anchors(should be 9)
 and one of the following:
     -  `relative_labels`: same as dataset configuration above
-    - `from_xml`: same as dataset configuration above
+    - `xml_labels_folder`: same as dataset configuration above
     
           anchors_conf = {
                           'anchor_no': 9,
                           'relative_labels':  '/path/to/labels.csv'
           }
+    - `voc_conf`: should be included if `xml_labels_folder` is specified
 
-7- Start the training
+5- Start the training
 
 **Note** 
 
@@ -472,7 +558,8 @@ contains 80 classes(COCO classes) or you'll get an error. Transfer learning
 to models with different number of classes will be supported in future versions
 of the program.
 
-    tr.train(epochs=100, 
+    trainer.train(
+             epochs=100, 
              batch_size=8, 
              learning_rate=1e-3, 
              dataset_name='dataset_name', 
@@ -482,32 +569,47 @@ of the program.
              new_anchors_conf=anchors_conf,  # check step 6
              #  weights='/path/to/weights'  # If you're using DarkNet weights or resuming training
              )
+
+#### **Training command line equivalent**
+
+    yolotf2 train --input-shape "(416, 416, 3)" --classes "path/to/classes.txt" --model-cfg "yolo_tf2/config/yolo3.cfg" --dataset-name "dataset_name" --relative-labels "path/to/labels.csv"  --epochs 100 --batch-size 8 --learning-rate 1e3 --merge-evaluation --min-overlaps 0.5 --test-size 0.2 --augmentation-preset PRESET1 --image-folder /path/to/image/folder
+
+**Notes**  
+- if you're training from outside the repo, specify --image-folder "your image folder"
+- To train on an already existing dataset, specify --train-tfrecord and --valid-tfrecord 
+- You can specify to parse from xml folder directly using --xml-labels-folder if
+outside the repo, otherwise, you might place labels in `data > xml_labels`
+- You can specify weights using --weights 
              
 
 After the training completes:
 
-1. The trained model is saved in Models folder(which you can use to resume training later/predict photos or videos)
-2. The resulting TFRecords and their corresponding csv data are saved in Data > TFRecords
-3. The resulting figures and evaluation results are saved in Output folder.
+1. The trained model is saved in models folder(which you can use to resume training later/predict photos or videos)
+2. The resulting TFRecords and their corresponding csv data are saved in `data > tfrecords`
+3. The resulting figures and evaluation results are saved in output folder.
+And if you're training from outside the repo, the folders above will be created in
+the working directory(if they do not exist)
 
 ### **Augmentation**
 
 **Here are the most basic steps to augment images(no training, just augmentation):**
 
-If you need to augment photos and take your time to examine/visualize the results,
+**Note:** Augmentation is supported through `yolotf2 train --augmentation-preset PRESET1`.
+
+If you need to manually augment photos and take your time to examine/visualize the results,
 here are the steps:
 
-1- Copy images to Data > Photos or specify `image_folder` param
+1- Copy images to data > photos or specify `image_folder=path_tom_image_folder`
 
 2- Ensure you have a csv file containing the labels in the format 
 mentioned [here](#csv-xml-annotation-parsers), if you have labels
-in xml VOC format, you can easily convert them using Helpers > annotation_parsers.py > 
+in xml VOC format, you can easily convert them using utils > annotation_parsers.py` 
 `parse_voc_folder()` (everything is explained in the docstrings)
 
 3- Create augmentation instance:
 
-    from Config.augmentation_options import augmentations
-    from Helpers.augmentor import DataAugment
+    from yolo_tf2.config.augmentation_options import augmentations
+    from yolo_tf2.core.augmentor import DataAugment
     
     
     aug = DataAugment(
@@ -516,10 +618,10 @@ in xml VOC format, you can easily convert them using Helpers > annotation_parser
     aug.create_sequences(sequences)  # check the docs
     aug.augment_photo_folder()
 
-After augmentation you'll find augmented images in the Data > Photos folder
+After augmentation you'll find augmented images in the data > photos folder
 or the folder you specified(if you did specify one) 
 
-And you should find 2 csv files in the Output folder: 
+And you should find 2 csv files in the output folder: 
 
 1. `augmented_data_plus_original.csv` : you can use this with 
 [labelpix](https://github.com/emadboctorx/labelpix) to visualize results with
@@ -535,10 +637,14 @@ in the training.
 Here are the most basic steps to evaluate a trained model:
 
 1. Create an evaluation instance:
-
+       
+ 
+       from yolo_tf2.core.evaluator import Evaluator
+       
+       
        evaluator = Evaluator(
                    input_shape=(416, 416, 3),
-                   model_configuration='../Config/yolo3.cfg',
+                   model_configuration='yolo_tf2/config/yolo3.cfg',
                    train_tf_record='/path/to/train.tfrecord',
                    valid_tf_record='/path/to/valid.tfrecord',
                    classes_file='/path/to/classes.txt',
@@ -548,8 +654,8 @@ Here are the most basic steps to evaluate a trained model:
                    
 2. Read actual and prediction results(that resulted from the training)
 
-       actual = pd.read_csv('../Data/TFRecords/full_data.csv')
-       preds = pd.read_csv('../Output/full_dataset_predictions.csv')
+       actual = pd.read_csv('data/tfrecords/full_data.csv')
+       preds = pd.read_csv('output/full_dataset_predictions.csv')
        
 3. Calculate mAP(mean average precision):
 
@@ -558,8 +664,12 @@ Here are the most basic steps to evaluate a trained model:
                   actual_data=actual, 
                   min_overlaps=0.5, 
                   display_stats=True)
+                  
+#### **Evaluation command line equivalent**
 
-After evaluation, you'll find resulting plots and predictions in the Output folder.
+    yolotf2 evaluate --input-shape "(416, 416, 3)" --model-cfg "yolo_tf2/config/yolo3.cfg" --train-tfrecord "/path/to/train.tfrecord" --valid-tfrecord "/path/to/valid.tfrecord" --score-threshold 0.1 --predicted-data "output/full_dataset_predictions.csv" --actual-data "data/tfrecords/full_data.csv"
+
+After evaluation, you'll find resulting plots and predictions in the output folder.
 
 ### **Detection**
 
@@ -567,10 +677,13 @@ Here are the most basic steps to perform detection:
 
 1. Create a detection instance:
 
-        p = Detector(
+        from yolo_tf2.core.detector import Detector
+        
+        
+        detector = Detector(
             input_shape=(416, 416, 3),
             model_configuration='/path/to/DarkNet/yolo_version.cfg,
-            '/path/to/classes_file.txt',
+            classes_file='/path/to/classes_file.txt',
             score_threshold=0.5,
             iou_threshold=0.5,
             max_boxes=100,
@@ -581,18 +694,29 @@ Here are the most basic steps to perform detection:
 A) Photos:
 
     photos = ['photo/path1', 'photo/path2']
-    p.predict_photos(photos=photos,
+    detector.predict_photos(photos=photos,
                      trained_weights='/path/to/trained/weights')  # .tf or yolov3.weights(80 classes)
+
+#### **Detection (photo) command line equivalent**
+
+    yolotf2 detect --input-shape "(416, 416, 3)" --classes "path/to/classes.txt" --model-cfg "yolo_tf2/config/yolo3.cfg" --score-threshold 0.5 --iou-threshold 0.5 --image-dir "path/to/image/dir" --weights "path/to/weights"
+
+or alternatively, if you want to perform detection on a single image specify --image instead of --image-dir
 
 B) Video
 
-    p.detect_video(
+    detector.detect_video(
         '/path/to/target/vid',
         '/path/to/trained/weights.tf',
     )
 
+#### **Detection (video) command line equivalent**
+
+    yolotf2 detect --input-shape "(416, 416, 3)" --classes "path/to/classes.txt" --model-cfg "yolo_tf2/config/yolo3.cfg" --score-threshold 0.5 --iou-threshold 0.5 --video "path/to/video" --weights "path/to/weights"
+
+
 After predictions is complete you'll find photos/video
- in Output > Detections
+ in output > detections
 
 ## **Contributing**
 
@@ -604,6 +728,27 @@ learn, inspire, and create. Any contributions you make are greatly appreciated.
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## **Issue policy**
+There are relevant cases in which the issues will be addressed and irrelevant ones that will be closed.
+
+### Relevant issues
+The following issues will be addressed.
+- Bugs.
+- Performance issues.
+- Installation issues.
+- Documentation issues.
+- Feature requests.
+- Dependency issues that can be solved.
+
+### Irrelevant issues
+The following issues will not be addressed and will be closed.
+- Issues without context / clear and concise explanation.
+- Issues without standalone code (minimum reproducible example), or a jupyter notebook link to reproduce errors.
+- Issues that are improperly formatted.
+- Issues that are dataset / label specific without a dataset sample link.
+- Issues that are the result of doing something that is unsupported by the existing features.
+- Issues that are not considered as improvement / useful.
 
 ## **License**
 
